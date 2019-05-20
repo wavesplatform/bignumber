@@ -1,6 +1,6 @@
 {
   "name": "@waves/bignumber",
-  "version": "0.0.0",
+  "version": "0.0.1-a",
   "description": "Waves Library for work with Bignumber in javascript",
   "main": "index.js",
   "types": "dist/index.d.ts",
