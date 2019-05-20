@@ -35,18 +35,6 @@ API
 * BigNumber.**MAX_UNSIGNED_VALUE**: `BigNumber`<br />
   Maximum unsigned value.
 
-### Utility
-
-* BigNumber.**isBigNumber**(obj: `*`): `boolean`<br />
-  Tests if the specified object is a Long.
-
-* BigNumber.**fromBytes**(bytes: `Uint8Array | number[]`): `BigNumber`<br />
-  Creates a Long from its byte representation.
-
-* BigNumber.**fromString**(str: `string`, unsigned?: `boolean`, radix?: `number`)<br />
-  BigNumber.**fromString**(str: `string`, radix: `number`)<br />
-  Returns a Long representation of the given string, written using the specified radix.
-
 ### Methods
 
 * BigNumber#**add**(addend: `Long | number | string`): `BigNumber`<br />
@@ -100,8 +88,7 @@ Building
 To build an UMD bundle to `dist/index.js`, run:
 
 ```bash
-$> npm install
-$> npm run build
+$> npm install @waves/bignumber
 ```
 
 Running the [tests](./tests):

@@ -99,6 +99,14 @@ export class BigNumber {
         return this.bn.dp();
     }
 
+    public isEven(): boolean {
+        return this.mod(2).eq(0);
+    }
+
+    public isOdd(): boolean {
+        return !this.isEven();
+    }
+
     public toBytes(): Uint8Array {
 
         if (!this.isInt()) {

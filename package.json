@@ -3,8 +3,16 @@
   "version": "0.0.0",
   "description": "Waves Library for work with Bignumber in javascript",
   "main": "index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "prepare": "tsc -p ./",
+    "postversion": "npm publish",
+    "prepublish": "npm run test",
+    "postpublish": "git push"
   },
   "keywords": [
     "bignumber",
