@@ -1,0 +1,45 @@
+{
+  "name": "@waves/bignumber",
+  "version": "0.0.0",
+  "description": "Waves Library for work with Bignumber in javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "bignumber",
+    "waves"
+  ],
+  "author": "tsddaniil@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "@types/bignumber.js": "^5.0.0",
+    "bignumber.js": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.13",
+    "@types/long": "^4.0.0",
+    "jest": "^24.8.0",
+    "long": "^4.0.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.4.5"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "testMatch": [
+      "**/test/*.+(ts|tsx|js)"
+    ]
+  }
+}
