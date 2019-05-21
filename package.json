@@ -4,6 +4,7 @@
   "description": "Waves Library for work with Bignumber in javascript",
   "main": "index.js",
   "types": "dist/index.d.ts",
+  "browser": "dist/bignumber.umd.min.js",
   "files": [
     "dist"
   ],
@@ -13,7 +14,7 @@
   },
   "scripts": {
     "test": "jest",
-    "prepare": "tsc -p ./",
+    "prepare": "tsc -p ./ && rollup -c",
     "postversion": "npm publish",
     "prepublish": "npm run test",
     "postpublish": "git push"
@@ -33,6 +34,11 @@
     "@types/long": "^4.0.0",
     "jest": "^24.8.0",
     "long": "^4.0.0",
+    "rollup": "^1.12.3",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-node-resolve": "^5.0.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "rollup-plugin-uglify": "^6.0.2",
     "ts-jest": "^24.0.2",
     "typescript": "^3.4.5"
   },

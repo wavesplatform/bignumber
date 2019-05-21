@@ -1,4 +1,4 @@
-import { BigNumber as BigNum } from 'bignumber.js';
+import { default as BigNum } from 'bignumber.js';
 import { Config, IFormat } from './Config';
 
 type TLong = string | number | BigNumber;
@@ -220,3 +220,5 @@ export namespace BigNumber {
         ROUND_HALF_FLOOR
     }
 }
+
+export default BigNumber;

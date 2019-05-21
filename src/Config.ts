@@ -1,4 +1,4 @@
-import { BigNumber as BigNum } from 'bignumber.js';
+import { default as BigNum } from 'bignumber.js';
 import { BigNumber } from './BigNumber';
 import ROUND_MODE = BigNumber.ROUND_MODE;
 
