@@ -7,6 +7,10 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wavesplatform/bignumber.git"
+  },
   "scripts": {
     "test": "jest",
     "prepare": "tsc -p ./",
