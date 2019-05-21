@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "commonjs",
+    "module": "es2015",
     "declaration": true,
     "sourceMap": true,
     "outDir": "./dist",
     "strict": true,
     "skipDefaultLibCheck": true,
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "lib": [
-      "es2015",
-      "dom"
+      "es2015"
     ]
   },
   "exclude": [

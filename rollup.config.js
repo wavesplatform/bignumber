@@ -1,33 +1,38 @@
 import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import { uglify } from "rollup-plugin-uglify";
+import typescript from 'rollup-plugin-typescript2';
+import { sizeSnapshot } from 'rollup-plugin-size-snapshot';
+import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
 
+
 export default [
-    // browser-friendly UMD build
     {
-        input: 'dist/index.js',
+        input: 'src/index.ts',
         output: {
             name: 'BigNumber',
             file: pkg.browser.replace('umd.min', 'umd'),
-            format: 'umd'
+            format: 'umd',
+            exports: 'named'
         },
         plugins: [
             resolve(),   // so Rollup can find `ms`
-            commonjs(),  // so Rollup can convert `ms` to an ES module
+            typescript(),
+            sizeSnapshot()
         ]
     },
     {
-        input: 'dist/index.js',
+        input: 'src/index.ts',
         output: {
             name: 'BigNumber',
-            file: pkg.browser,
-            format: 'umd'
+            file: pkg.browser.replace('umd', 'umd'),
+            format: 'umd',
+            exports: 'named'
         },
         plugins: [
             resolve(),   // so Rollup can find `ms`
-            commonjs(),  // so Rollup can convert `ms` to an ES module
-            uglify()
+            typescript(),
+            terser(),
+            sizeSnapshot()
         ]
     }
 ];

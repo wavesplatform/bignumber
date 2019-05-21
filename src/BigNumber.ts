@@ -220,5 +220,3 @@ export namespace BigNumber {
         ROUND_HALF_FLOOR
     }
 }
-
-export default BigNumber;
