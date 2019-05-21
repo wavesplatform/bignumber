@@ -8,6 +8,7 @@
     "strict": true,
     "skipDefaultLibCheck": true,
     "esModuleInterop": true,
+    "preserveConstEnums": true,
     "moduleResolution": "node",
     "lib": [
       "es2015"
