@@ -2,7 +2,7 @@
   "name": "@waves/bignumber",
   "version": "0.0.1-a4",
   "description": "Waves Library for work with Bignumber in javascript",
-  "main": "index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "browser": "dist/bignumber.umd.min.js",
   "files": [
