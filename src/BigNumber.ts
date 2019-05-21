@@ -131,11 +131,11 @@ export class BigNumber {
         return this.bn.toFormat(decimals as number, format as IFormat);
     }
 
-    public toFixed(decimals?: number): string {
+    public toFixed(decimals?: number, roundMode?: BigNumber.ROUND_MODE): string {
         if (decimals == null) {
             return this.bn.toFixed();
         } else {
-            return this.bn.toFixed(decimals);
+            return this.bn.toFixed(decimals, roundMode);
         }
     }
 
