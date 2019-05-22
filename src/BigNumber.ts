@@ -139,8 +139,16 @@ export class BigNumber {
         }
     }
 
+    public toNumber(): number {
+        return this.bn.toNumber();
+    }
+
     public toJSON(): string {
         return this.bn.toFixed();
+    }
+
+    public valueOf(): string {
+        return this.bn.valueOf();
     }
 
     public static fromBytes(bytes: Uint8Array | Array<number>): BigNumber {
