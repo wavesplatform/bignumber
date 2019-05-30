@@ -11,8 +11,12 @@ export class BigNumber {
     public static MAX_UNSIGNED_VALUE = new BigNumber('18446744073709551615');
     public static config = new Config();
 
-    constructor(long: TLong | BigNum) {
-        this.bn = BigNumber.toBigNumberJs(long);
+    constructor(long: TLong | BigNum | BigNumber) {
+        if (typeof long === 'object' && BigNumber.isBigNumber(long)) {
+            this.bn = long.bn.plus(0);
+        } else {
+            this.bn = BigNumber.toBigNumberJs(long);
+        }
     }
 
     public clone(): BigNumber {
@@ -127,8 +131,8 @@ export class BigNumber {
         return isNegative ? Uint8Array.from(bytes.map(byte => 255 - byte)) : Uint8Array.from(bytes);
     }
 
-    public toFormat(decimals?: number, format?: IFormat): string {
-        return this.bn.toFormat(decimals as number, format as IFormat);
+    public toFormat(decimals?: number, roundMode?: BigNumber.ROUND_MODE, format?: IFormat): string {
+        return this.bn.toFormat(decimals as number, roundMode as any, format as IFormat);
     }
 
     public toFixed(decimals?: number, roundMode?: BigNumber.ROUND_MODE): string {
@@ -184,6 +188,13 @@ export class BigNumber {
     public static sum(...items: Array<TLong>): BigNumber {
         return BigNumber.toBigNumber(items)
             .reduce((acc, item) => acc.add(item));
+    }
+
+    public static isBigNumber(some: any): some is BigNumber {
+        return some && typeof some === 'object' && (some instanceof BigNumber || Object.entries(BigNumber.prototype)
+                .filter(([key]) => key.charAt(0) !== '_')
+                .every(([key, value]) => (key in some) && typeof value === typeof some[key])
+        );
     }
 
     public static toBigNumber(items: TLong): BigNumber;
