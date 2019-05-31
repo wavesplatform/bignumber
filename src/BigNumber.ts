@@ -143,6 +143,10 @@ export class BigNumber {
         }
     }
 
+    public toString(): string {
+        return this.toFixed();
+    }
+
     public toNumber(): number {
         return this.bn.toNumber();
     }
