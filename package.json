@@ -27,7 +27,6 @@
   "author": "tsddaniil@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "@types/bignumber.js": "^5.0.0",
     "bignumber.js": "^8.1.1"
   },
   "devDependencies": {
