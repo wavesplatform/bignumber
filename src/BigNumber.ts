@@ -160,8 +160,8 @@ export class BigNumber {
     }
 
     public static fromBytes(bytes: Uint8Array | Array<number>): BigNumber {
-        if (bytes.length !== 8) {
-            throw new Error('Wrong bytes length! Need 8 bytes!');
+        if (bytes.length === 0) {
+            throw new Error('Wrong bytes length! Minimal length is 1 bytes!');
         }
 
         const isNegative = bytes[0] > 127;
