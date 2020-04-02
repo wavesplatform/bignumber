@@ -111,26 +111,6 @@ export class BigNumber {
         return !this.isEven();
     }
 
-    public toBytes(): Uint8Array {
-
-        if (!this.isInt()) {
-            throw new Error('Cant create bytes from number with decimals!');
-        }
-
-        const isNegative = this.isNegative();
-        const toAdd = isNegative ? '1' : '0';
-        let baseStr = BigNumber._toLength(64, this.bn.plus(toAdd).abs().toString(2).replace('-', ''));
-
-        const baseStrArr = baseStr.split('');
-        const bytes = [];
-
-        do {
-            bytes.push(parseInt(baseStrArr.splice(0, 8).join(''), 2));
-        } while (baseStrArr.length);
-
-        return isNegative ? Uint8Array.from(bytes.map(byte => 255 - byte)) : Uint8Array.from(bytes);
-    }
-
     public toFormat(decimals?: number, roundMode?: BigNumber.ROUND_MODE, format?: IFormat): string {
         return this.bn.toFormat(decimals as number, roundMode as any, format as IFormat);
     }
@@ -159,12 +139,49 @@ export class BigNumber {
         return this.bn.valueOf();
     }
 
-    public static fromBytes(bytes: Uint8Array | Array<number>): BigNumber {
+    public toBytes(isSigned = true, isLong = true): Uint8Array {
+        if (!this.isInt()) {
+            throw new Error('Cant create bytes from number with decimals!');
+        }
+
+        const isNegative = this.isNegative();
+
+        if (isNegative && !isSigned) {
+            throw new Error('Cant create bytes from an unsigned negative number!');
+        }
+
+        const toAdd = isNegative ? '1' : '0';
+        const byteString = this.bn.plus(toAdd).toString(2).replace('-', '')
+
+        const stringLength = isLong
+            ? 64
+            : 2 ** Math.ceil(Math.log2(byteString.length))
+
+        let baseStr = BigNumber._toLength(stringLength, byteString);
+
+        const baseStrArr = baseStr.split('');
+        const bytes = [];
+
+        do {
+            bytes.push(parseInt(baseStrArr.splice(0, 8).join(''), 2));
+        } while (baseStrArr.length);
+
+        if (isSigned) {
+            return isNegative
+                ? Uint8Array.from(bytes.map(byte => 255 - byte))
+                : Uint8Array.from(bytes);
+        } else {
+            return Uint8Array.from(bytes);
+        }
+    }
+
+    public static fromBytes(bytes: Uint8Array | Array<number>, isSigned = true): BigNumber {
         if (bytes.length === 0) {
-            throw new Error('Wrong bytes length! Minimal length is 1 bytes!');
+            throw new Error('Wrong bytes length! Minimal length is 1 byte!');
         }
 
         const isNegative = bytes[0] > 127;
+
         const byteString = Array.from(bytes)
             .map(byte => isNegative ? 255 - byte : byte)
             .map(byte => BigNumber._toLength(8, byte.toString(2)))
@@ -172,8 +189,10 @@ export class BigNumber {
 
         const result = new BigNumber(new BigNum(byteString, 2));
 
-        if (isNegative) {
-            return result.mul(-1).sub(1);
+        if (isSigned) {
+            return isNegative
+                ? result.mul(-1).sub(1)
+                : result;
         } else {
             return result;
         }
