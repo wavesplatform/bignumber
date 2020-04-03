@@ -6,8 +6,9 @@ type TLong = string | number | BigNumber;
 export class BigNumber {
 
     public readonly bn: BigNum;
-    public static MAX_VALUE = new BigNumber('9223372036854775807');
     public static MIN_VALUE = new BigNumber('-9223372036854775808');
+    public static MAX_VALUE = new BigNumber('9223372036854775807');
+    public static MIN_UNSIGNED_VALUE = new BigNumber('0');
     public static MAX_UNSIGNED_VALUE = new BigNumber('18446744073709551615');
     public static config = new Config();
 
@@ -111,6 +112,14 @@ export class BigNumber {
         return !this.isEven();
     }
 
+    public isInSignedRange(): boolean {
+        return (this.gte(BigNumber.MIN_VALUE) && this.lte(BigNumber.MAX_VALUE))
+    }
+
+    public isInUnsignedRange(): boolean {
+        return (this.gte(BigNumber.MIN_UNSIGNED_VALUE) && this.lte(BigNumber.MAX_UNSIGNED_VALUE))
+    }
+
     public toFormat(decimals?: number, roundMode?: BigNumber.ROUND_MODE, format?: IFormat): string {
         return this.bn.toFormat(decimals as number, roundMode as any, format as IFormat);
     }
@@ -139,16 +148,27 @@ export class BigNumber {
         return this.bn.valueOf();
     }
 
-    public toBytes(isSigned = true, isLong = true): Uint8Array {
+    public toBytes({
+        isSigned = true,
+        isLong = true
+    } = {}): Uint8Array {
         if (!this.isInt()) {
             throw new Error('Cant create bytes from number with decimals!');
         }
 
-        const isNegative = this.isNegative();
-
-        if (isNegative && !isSigned) {
-            throw new Error('Cant create bytes from an unsigned negative number!');
+        if (!isSigned && this.isNegative()) {
+            throw new Error('Cant create bytes from negative number in signed mode!');
         }
+
+        if (isSigned && !this.isInSignedRange()) {
+            throw new Error('Number is not from signed numbers range');
+        } 
+
+        if (!isSigned && !this.isInUnsignedRange()) {
+            throw new Error('Number is not from unsigned numbers range');
+        }
+
+        const isNegative = isSigned ? this.isNegative() : false;
 
         const toAdd = isNegative ? '1' : '0';
         const byteString = this.bn.plus(toAdd).toString(2).replace('-', '')
@@ -166,21 +186,22 @@ export class BigNumber {
             bytes.push(parseInt(baseStrArr.splice(0, 8).join(''), 2));
         } while (baseStrArr.length);
 
-        if (isSigned) {
-            return isNegative
-                ? Uint8Array.from(bytes.map(byte => 255 - byte))
-                : Uint8Array.from(bytes);
-        } else {
-            return Uint8Array.from(bytes);
-        }
+        return isNegative
+            ? Uint8Array.from(bytes.map(byte => 255 - byte))
+            : Uint8Array.from(bytes);
     }
 
-    public static fromBytes(bytes: Uint8Array | Array<number>, isSigned = true): BigNumber {
-        if (bytes.length === 0) {
-            throw new Error('Wrong bytes length! Minimal length is 1 byte!');
-        }
+    public static fromBytes(bytes: Uint8Array | Array<number>, {
+        isSigned = true,
+        isLong = true
+    } = {}): BigNumber {
+        if (isLong && bytes.length !== 8) {
+            throw new Error('Wrong bytes length! Minimal length is 8 byte!');
+        }  
+          
+        // bytes = !isLong && bytes.length > 0 ? bytes : [0];
 
-        const isNegative = bytes[0] > 127;
+        const isNegative = isSigned ? bytes[0] > 127 : false;
 
         const byteString = Array.from(bytes)
             .map(byte => isNegative ? 255 - byte : byte)
@@ -189,13 +210,9 @@ export class BigNumber {
 
         const result = new BigNumber(new BigNum(byteString, 2));
 
-        if (isSigned) {
-            return isNegative
-                ? result.mul(-1).sub(1)
-                : result;
-        } else {
-            return result;
-        }
+        return isNegative
+            ? result.mul(-1).sub(1)
+            : result;
     }
 
     public static max(...items: Array<TLong>): BigNumber {
