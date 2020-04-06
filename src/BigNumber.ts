@@ -175,7 +175,7 @@ export class BigNumber {
 
         const stringLength = isLong
             ? 64
-            : BigNumber._findNearestMultiple(byteString.length, 8)
+            : Math.ceil(byteString.length / 8) * 8
 
         let baseStr = BigNumber._toLength(stringLength, byteString);
 
@@ -267,9 +267,6 @@ export class BigNumber {
             .slice(-length)
             .join('');
     }
-
-    private static _findNearestMultiple = (value: number, divider: number) =>
-        Math.ceil(value / divider) * divider
 }
 
 export namespace BigNumber {
