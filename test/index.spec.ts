@@ -246,6 +246,26 @@ describe('BigNumber', () => {
                     .toThrowError('Cant create bytes from negative number in signed mode');
             });
         });
+
+        describe('Check isLong', () => {
+            it('isLong = false and signed range values', () => {
+                const values = [
+                    BigNumber.MIN_VALUE.toString(),
+                    '-365',
+                    '0',
+                    '1',
+                    '365',
+                    BigNumber.MAX_VALUE.toString()
+                ]
+
+                values.forEach(value => {
+                    const bignumberBytes = Array.from(new BigNumber(value).toBytes({ isLong: false }))
+                    const longBytes = Long.fromValue(value).toBytes().slice(-bignumberBytes.length)
+
+                    expect(longBytes).toEqual(bignumberBytes);
+                });
+            });
+        });
     });
 
     describe('fromBytes', () => {
@@ -279,6 +299,25 @@ describe('BigNumber', () => {
                     const bytes = Long.fromValue(value).toBytes();
 
                     expect(BigNumber.fromBytes(bytes, { isSigned: false }).toFixed()).toEqual(value);
+                });
+            });
+        });
+
+        describe('Check isLong', () => {
+            it('isLong = false and signed range values', () => {
+                const values = [
+                    BigNumber.MIN_VALUE.toString(),
+                    '-365',
+                    '0',
+                    '1',
+                    '365',
+                    BigNumber.MAX_VALUE.toString()
+                ]
+
+                values.forEach(value => {
+                    const bytes = Long.fromValue(value).toBytes();
+
+                    expect(BigNumber.fromBytes(bytes, { isLong: false }).toFixed()).toEqual(value);
                 });
             });
         });

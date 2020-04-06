@@ -160,11 +160,11 @@ export class BigNumber {
             throw new Error('Cant create bytes from negative number in signed mode!');
         }
 
-        if (isSigned && !this.isInSignedRange()) {
+        if (isLong && isSigned && !this.isInSignedRange()) {
             throw new Error('Number is not from signed numbers range');
         } 
 
-        if (!isSigned && !this.isInUnsignedRange()) {
+        if (isLong && !isSigned && !this.isInUnsignedRange()) {
             throw new Error('Number is not from unsigned numbers range');
         }
 
@@ -186,6 +186,7 @@ export class BigNumber {
             bytes.push(parseInt(baseStrArr.splice(0, 8).join(''), 2));
         } while (baseStrArr.length);
 
+
         return isNegative
             ? Uint8Array.from(bytes.map(byte => 255 - byte))
             : Uint8Array.from(bytes);
@@ -199,7 +200,9 @@ export class BigNumber {
             throw new Error('Wrong bytes length! Minimal length is 8 byte!');
         }  
           
-        // bytes = !isLong && bytes.length > 0 ? bytes : [0];
+        bytes = ((!isLong && bytes.length > 0) || isLong)
+            ? bytes
+            : [0];
 
         const isNegative = isSigned ? bytes[0] > 127 : false;
 
