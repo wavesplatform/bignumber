@@ -6,8 +6,9 @@ type TLong = string | number | BigNumber;
 export class BigNumber {
 
     public readonly bn: BigNum;
-    public static MAX_VALUE = new BigNumber('9223372036854775807');
     public static MIN_VALUE = new BigNumber('-9223372036854775808');
+    public static MAX_VALUE = new BigNumber('9223372036854775807');
+    public static MIN_UNSIGNED_VALUE = new BigNumber('0');
     public static MAX_UNSIGNED_VALUE = new BigNumber('18446744073709551615');
     public static config = new Config();
 
@@ -111,24 +112,12 @@ export class BigNumber {
         return !this.isEven();
     }
 
-    public toBytes(): Uint8Array {
+    public isInSignedRange(): boolean {
+        return (this.gte(BigNumber.MIN_VALUE) && this.lte(BigNumber.MAX_VALUE))
+    }
 
-        if (!this.isInt()) {
-            throw new Error('Cant create bytes from number with decimals!');
-        }
-
-        const isNegative = this.isNegative();
-        const toAdd = isNegative ? '1' : '0';
-        let baseStr = BigNumber._toLength(64, this.bn.plus(toAdd).abs().toString(2).replace('-', ''));
-
-        const baseStrArr = baseStr.split('');
-        const bytes = [];
-
-        do {
-            bytes.push(parseInt(baseStrArr.splice(0, 8).join(''), 2));
-        } while (baseStrArr.length);
-
-        return isNegative ? Uint8Array.from(bytes.map(byte => 255 - byte)) : Uint8Array.from(bytes);
+    public isInUnsignedRange(): boolean {
+        return (this.gte(BigNumber.MIN_UNSIGNED_VALUE) && this.lte(BigNumber.MAX_UNSIGNED_VALUE))
     }
 
     public toFormat(decimals?: number, roundMode?: BigNumber.ROUND_MODE, format?: IFormat): string {
@@ -159,12 +148,64 @@ export class BigNumber {
         return this.bn.valueOf();
     }
 
-    public static fromBytes(bytes: Uint8Array | Array<number>): BigNumber {
-        if (bytes.length !== 8) {
-            throw new Error('Wrong bytes length! Need 8 bytes!');
+    public toBytes({
+        isSigned = true,
+        isLong = true
+    } = {}): Uint8Array {
+        if (!this.isInt()) {
+            throw new Error('Cant create bytes from number with decimals!');
         }
 
-        const isNegative = bytes[0] > 127;
+        if (!isSigned && this.isNegative()) {
+            throw new Error('Cant create bytes from negative number in signed mode!');
+        }
+
+        if (isLong && isSigned && !this.isInSignedRange()) {
+            throw new Error('Number is not from signed numbers range');
+        } 
+
+        if (isLong && !isSigned && !this.isInUnsignedRange()) {
+            throw new Error('Number is not from unsigned numbers range');
+        }
+
+        const isNegative = isSigned && this.isNegative();
+
+        const toAdd = isNegative ? '1' : '0';
+        const byteString = this.bn.plus(toAdd).toString(2).replace('-', '')
+
+        const stringLength = isLong
+            ? 64
+            : Math.ceil(byteString.length / 8) * 8
+
+        let baseStr = BigNumber._toLength(stringLength, byteString);
+
+        const baseStrArr = baseStr.split('');
+        const bytes = [];
+
+        do {
+            bytes.push(parseInt(baseStrArr.splice(0, 8).join(''), 2));
+        } while (baseStrArr.length);
+
+
+        return isNegative
+            ? Uint8Array.from(bytes.map(byte => 255 - byte))
+            : Uint8Array.from(bytes);
+    }
+
+    public static fromBytes(bytes: Uint8Array | Array<number>, {
+        isSigned = true,
+        isLong = true
+    } = {}): BigNumber {
+        if (isLong && bytes.length !== 8) {
+            throw new Error('Wrong bytes length! Minimal length is 8 byte!');
+        }  
+          
+        bytes = ((!isLong && bytes.length > 0) || isLong)
+            ? bytes
+            : [0];
+
+        const isNegative = isSigned ? bytes[0] > 127 : false;
+
         const byteString = Array.from(bytes)
             .map(byte => isNegative ? 255 - byte : byte)
             .map(byte => BigNumber._toLength(8, byte.toString(2)))
@@ -172,11 +213,9 @@ export class BigNumber {
 
         const result = new BigNumber(new BigNum(byteString, 2));
 
-        if (isNegative) {
-            return result.mul(-1).sub(1);
-        } else {
-            return result;
-        }
+        return isNegative
+            ? result.mul(-1).sub(1)
+            : result;
     }
 
     public static max(...items: Array<TLong>): BigNumber {

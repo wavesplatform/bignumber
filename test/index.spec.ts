@@ -3,7 +3,6 @@ import Long from 'long';
 
 
 describe('BigNumber', () => {
-
     it('clone', () => {
         const bn = new BigNumber(10);
         const clone = bn.clone();
@@ -169,6 +168,161 @@ describe('BigNumber', () => {
         expect(new BigNumber(1.2231).getDecimalsCount()).toBe(4);
     });
 
+    it('toBytes from not int', () => {
+        expect(() => new BigNumber(1.2).toBytes()).toThrowError('Cant create bytes from number with decimals!');
+    });
+
+    it('From bytes with wrong bytes length', () => {
+        expect(() => BigNumber.fromBytes(new Uint8Array([1, 2]))).toThrowError('Wrong bytes length! Minimal length is 8 byte!');
+    });
+
+    it('toBytes from ', () => {
+        expect(() => BigNumber.fromBytes(new Uint8Array([1, 2]))).toThrowError('Wrong bytes length! Minimal length is 8 byte!');
+    });
+    
+    describe('toBytes', () => {
+        describe('Check isSigned', () => {
+            it('isSigned = true and signed range values', () => {
+                const values = [
+                    BigNumber.MIN_VALUE.toString(),
+                    '-365',
+                    '0',
+                    '1',
+                    '365',
+                    BigNumber.MAX_VALUE.toString()
+                ]
+
+                values.forEach(value => {
+                    const bignumberBytes = Array.from(new BigNumber(value).toBytes())
+                    const longBytes = Long.fromValue(value).toBytes() 
+
+                    expect(bignumberBytes).toEqual(longBytes);
+                });
+            });
+
+            it('should throw error with isSigned = true and numbers from wrong range', () => {
+                const values = [
+                    BigNumber.MIN_VALUE.sub(1).toString(),
+                    BigNumber.MAX_VALUE.add(1).toString()
+                ]
+
+                values.forEach(value => {
+                    expect(() => new BigNumber(value).toBytes())
+                    .toThrowError('Number is not from signed numbers range');
+                });
+            });
+
+            it('isSigned = false and unsigned range values', () => {
+                const values = [
+                    '0',
+                    '1',
+                    '365',
+                    BigNumber.MAX_UNSIGNED_VALUE.toString(),
+                ]
+
+                values.forEach(value => {
+                    const bignumberBytes = Array.from(new BigNumber(value).toBytes({ isSigned: false }))
+                    const longBytes = Long.fromValue(value).toBytes() 
+
+                    expect(bignumberBytes).toEqual(longBytes);
+                });
+            });
+
+            it('should throw error with isSigned = false and numbers from wrong range', () => {
+                const values = [
+                    BigNumber.MAX_UNSIGNED_VALUE.add(1).toString()
+                ]
+
+                values.forEach(value => {
+                    expect(() => new BigNumber(value).toBytes({ isSigned: false }))
+                        .toThrowError('Number is not from unsigned numbers range')
+                });
+            });
+
+            it('should throw error with isSigned = false and negative number', () => {
+                const value = BigNumber.MIN_UNSIGNED_VALUE.sub(1).toString();
+
+                expect(() => new BigNumber(value).toBytes({ isSigned: false }))
+                    .toThrowError('Cant create bytes from negative number in signed mode');
+            });
+        });
+
+        describe('Check isLong', () => {
+            it('isLong = false and signed range values', () => {
+                const values = [
+                    BigNumber.MIN_VALUE.toString(),
+                    '-365',
+                    '0',
+                    '1',
+                    '365',
+                    BigNumber.MAX_VALUE.toString()
+                ]
+
+                values.forEach(value => {
+                    const bignumberBytes = Array.from(new BigNumber(value).toBytes({ isLong: false }))
+                    const longBytes = Long.fromValue(value).toBytes().slice(-bignumberBytes.length)
+
+                    expect(longBytes).toEqual(bignumberBytes);
+                });
+            });
+        });
+    });
+
+    describe('fromBytes', () => {
+        describe('Check isSigned', () => {
+            it('isSigned = true and signed range values', () => {
+                const values = [
+                    BigNumber.MIN_VALUE.toString(),
+                    '-365',
+                    '0',
+                    '1',
+                    '365',
+                    BigNumber.MAX_VALUE.toString()
+                ]
+
+                values.forEach(value => {
+                    const bytes = Long.fromValue(value).toBytes();
+
+                    expect(BigNumber.fromBytes(bytes).toFixed()).toEqual(value);
+                });
+            });
+
+            it('isSigned = false and unsigned range values', () => {
+                const values = [
+                    '0',
+                    '1',
+                    '365',
+                    BigNumber.MAX_UNSIGNED_VALUE.toString(),
+                ]
+
+                values.forEach(value => {
+                    const bytes = Long.fromValue(value).toBytes();
+
+                    expect(BigNumber.fromBytes(bytes, { isSigned: false }).toFixed()).toEqual(value);
+                });
+            });
+        });
+
+        describe('Check isLong', () => {
+            it('isLong = false and signed range values', () => {
+                const values = [
+                    BigNumber.MIN_VALUE.toString(),
+                    '-365',
+                    '0',
+                    '1',
+                    '365',
+                    BigNumber.MAX_VALUE.toString()
+                ]
+
+                values.forEach(value => {
+                    const bytes = Long.fromValue(value).toBytes();
+
+                    expect(BigNumber.fromBytes(bytes, { isLong: false }).toFixed()).toEqual(value);
+                });
+            });
+        });
+    });
+
     it('toBytes, fromBytes', () => {
         const checkValue = [];
         let value = Long.MAX_VALUE;
@@ -192,14 +346,6 @@ describe('BigNumber', () => {
                 throw new Error(`Bytes: ${bytes}, target: ${value}, result ${BigNumber.fromBytes(bytes).toFixed()}`);
             }
         });
-    });
-
-    it('toBytes from not int', () => {
-        expect(() => new BigNumber(1.2).toBytes()).toThrowError('Cant create bytes from number with decimals!');
-    });
-
-    it('From bytes with wrong bytes length', () => {
-        expect(() => BigNumber.fromBytes(new Uint8Array([1, 2]))).toThrowError('Wrong bytes length! Need 8 bytes!');
     });
 
     it('config, toFormat', () => {
