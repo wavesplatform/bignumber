@@ -168,14 +168,14 @@ export class BigNumber {
             throw new Error('Number is not from unsigned numbers range');
         }
 
-        const isNegative = isSigned ? this.isNegative() : false;
+        const isNegative = isSigned && this.isNegative();
 
         const toAdd = isNegative ? '1' : '0';
         const byteString = this.bn.plus(toAdd).toString(2).replace('-', '')
 
         const stringLength = isLong
             ? 64
-            : 2 ** Math.ceil(Math.log2(byteString.length))
+            : BigNumber._findNearestMultiple(byteString.length, 8)
 
         let baseStr = BigNumber._toLength(stringLength, byteString);
 
@@ -267,6 +267,9 @@ export class BigNumber {
             .slice(-length)
             .join('');
     }
+
+    private static _findNearestMultiple = (value: number, divider: number) =>
+        Math.ceil(value / divider) * divider
 }
 
 export namespace BigNumber {
