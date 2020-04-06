@@ -323,6 +323,31 @@ describe('BigNumber', () => {
         });
     });
 
+    it('toBytes, fromBytes', () => {
+        const checkValue = [];
+        let value = Long.MAX_VALUE;
+        const step = Long.MAX_VALUE.div('10000');
+        const checkMinValue = Long.MIN_VALUE.add(step);
+
+        do {
+            checkValue.push(value.toString());
+            value = value.sub(step);
+        } while (checkMinValue.lte(value));
+
+        checkValue.push(Long.MIN_VALUE.toString());
+
+        checkValue.forEach(value => {
+            const bytes = new BigNumber(value).toBytes();
+            expect(Long.fromValue(value).toBytes()).toEqual(Array.from(bytes));
+
+            try {
+                expect(BigNumber.fromBytes(bytes).toFixed()).toEqual(value);
+            } catch (e) {
+                throw new Error(`Bytes: ${bytes}, target: ${value}, result ${BigNumber.fromBytes(bytes).toFixed()}`);
+            }
+        });
+    });
+
     it('config, toFormat', () => {
         expect(new BigNumber('1000000.12312').toFormat()).toBe('1,000,000.12312');
         BigNumber.config.set({
