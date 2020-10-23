@@ -25,6 +25,11 @@ describe('BigNumber', () => {
         expect(bn.pow(10).toFixed()).toBe('1024');
     });
 
+    it('sqrt', () => {
+        const bn = new BigNumber(16);
+        expect(bn.sqrt().toFixed()).toBe('4');
+    });
+
     it('abs', () => {
         const bn = new BigNumber('-100');
         expect(bn.abs().toFixed()).toBe('100');
