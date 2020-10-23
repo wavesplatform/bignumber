@@ -98,6 +98,14 @@ const bigNum = new BigNumber('100');
 const result = bigNum.pow(2); // with method toFixed '10000'
 ```
 
+##### Sqrt
+Квадратный корень
+```javascript
+const bigNum = new BigNumber('100');
+const result = bigNum.sqrt(); // with method toFixed '10'
+```
+
+
 ##### Abs
 Модуль
 ```javascript

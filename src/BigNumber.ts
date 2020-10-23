@@ -44,6 +44,10 @@ export class BigNumber {
         return new BigNumber(this.bn.pow(BigNumber.toBigNumberJs(exp)));
     }
 
+    public sqrt() {
+        return new BigNumber(this.bn.sqrt());
+    }
+
     public abs(): BigNumber {
         return new BigNumber(this.bn.abs());
     }
