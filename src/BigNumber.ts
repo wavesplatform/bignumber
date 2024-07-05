@@ -1,4 +1,4 @@
-import { default as BigNum } from 'bignumber.js';
+import BigNum from 'bignumber.js';
 import { Config, IFormat } from './Config';
 
 type TLong = string | number | BigNumber;
@@ -104,7 +104,7 @@ export class BigNumber {
         return this.bn.isInteger();
     }
 
-    public getDecimalsCount(): number {
+    public getDecimalsCount(): number|null {
         return this.bn.dp();
     }
 
@@ -136,8 +136,8 @@ export class BigNumber {
         }
     }
 
-    public toString(): string {
-        return this.toFixed();
+    public toString(base?: number): string {
+        return base ? this.bn.toString(base) : this.toFixed();
     }
 
     public toNumber(): number {

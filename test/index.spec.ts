@@ -394,4 +394,9 @@ describe('BigNumber', () => {
         expect(BigNumber.toBigNumber('1').toFixed()).toBe('1');
         expect(BigNumber.toBigNumber(['1', 2]).map(i => i.toFixed())).toEqual(['1', '2']);
     });
+
+    it('toString(16)', () => {
+        expect(BigNumber.toBigNumber(255).toString()).toBe('255');
+        expect(BigNumber.toBigNumber(255).toString(16)).toBe('ff');
+    });
 });
